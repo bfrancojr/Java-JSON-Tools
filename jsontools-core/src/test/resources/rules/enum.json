@@ -1,0 +1,26 @@
+{
+    "validator" :
+        {
+            "name" :"Enum test",
+            "type" :"enum",
+            "values" : [13, 17, "JSON", 123.12, [1, 2, 3], {"key":"value"}]
+        },
+    "good" :
+        [
+             13,
+             17,
+             {"key":"value"},
+             "JSON",
+             123.12,
+             [1, 2, 3]
+        ],
+    "bad" :
+        [
+            "ddddddddddddd",
+            "abd",
+            123,
+            null,
+            {}
+        ]
+}
+

@@ -1,0 +1,14 @@
+[
+    "/rules/true.json",
+    "/rules/false.json",
+    "/rules/array-int.json",
+    "/rules/array-length.json",
+    "/rules/array-nested-int.json",
+    "/rules/custom.json",
+    "/rules/enum.json",
+    "/rules/let.json",
+    "/rules/obj-basic.json",
+    "/rules/range.json",
+    "/rules/regexp.json",
+    "/rules/switch.json"
+]

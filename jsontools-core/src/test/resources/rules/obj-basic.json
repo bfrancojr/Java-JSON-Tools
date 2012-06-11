@@ -1,0 +1,24 @@
+{
+    "validator" :
+        {
+            "name" :"Contact spec.",
+            "type" :"properties",
+            "pairs" : [{"key":"name", "optional":false, "rule":{"type":"string"}},
+                       {"key":"country", "optional":false, "rule":{"type":"string"}},
+                       {"key":"salary", "optional":true, "rule":{"type":"decimal"}}
+                      ]
+        },
+    "good" :
+        [
+            {"name":"Bruno Ranschaert", "country":"Belgium", "salary":100.0 },
+            {"name":"Benedicte Ermens", "country":"Belgium" },
+            {"country":"Belgium", "name":"Alexander Ranschaert" }
+        ],
+    "bad" :
+        [
+            {"name":"Oma megafoon"},                                                                # Country is missing.
+            {"name":"Bruno Ranschaert", "country":"Belgium", "salary":100.0 , "likes":"spaghetti"}, # Contains unspecified property.
+            {"name":"Mickey Mouse", "country":"Disneyland", "salary":"hiihaaa" }                    # Salary has bad type
+        ]
+}
+

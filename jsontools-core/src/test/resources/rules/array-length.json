@@ -1,0 +1,22 @@
+{
+    "validator" :
+        {
+            "name"  :"Array of length 5",
+            "type"  :"and",
+            "rules" : [{"type":"array"}, {"type":"length","min":5,"max":5}]
+        },
+    "good" :
+        [
+            [1, 2, 3, 4, 5],
+            [true, false, true, false, true],
+            ["uno", "duo", "tres", "quattuor", "cinque"],
+            [1.0, 2.0, 3.0, 4.0, 5.0],
+            [[true], [1], ["JSON"], [0.1], [{}]]
+        ],
+    "bad" :
+        [
+            [1, 2, 3, 4],
+            [1, 2, 3, 4, 5, 6]
+        ]
+}
+

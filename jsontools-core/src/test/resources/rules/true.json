@@ -1,0 +1,21 @@
+{
+    "validator" :
+        {
+            "name" :"True test",
+            "type" :"true"
+        },
+    "good" :
+        [
+            true,
+            false,
+            { "prop" : "value"},
+            ["contains", "strings", "this", "list"],
+            123,
+            null
+        ],
+    "bad" :
+        [
+            # true always succeeds.                                                
+        ]
+}
+

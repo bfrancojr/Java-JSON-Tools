@@ -1,0 +1,72 @@
+#    JSONTools - Java JSON Tools
+#    Copyright (C) 2006-2008 S.D.I.-Consulting BVBA
+#    http://www.sdi-consulting.com
+#    mailto://nospam@sdi-consulting.com
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+{
+   "name" :"Log4j JSON Validator",
+   "type" :"properties",
+   "pairs" : [
+              # The level indicates the severity of the log entry.
+              #
+              {"key":"level",   "optional":false, "rule":{ "type" :"enum", "values" : ["DEBUG", "INFO", "WARN", "ERROR",  "FATAL"] }},
+
+              # The message is the main part of information of the entry.
+              #
+              {"key":"message", "optional":false, "rule":{"type":"string"}},
+
+              # The logger is the name of the Log4J logger to which the entry was posted initially.
+              # The logger names are hierarchical, very often the fully qualified Java classname is
+              # choosen for it, but it is not a requirement.
+              #
+              {"key":"logger", "optional":false, "rule":{"type":"string"}},
+
+              # The thread name. This entry makes it possible to untangle the threads
+              # logging at the same time.
+              #
+              {"key":"thread", "optional":false, "rule":{"type":"string"}},
+
+              # The timestamp contains an array of representations. The first one is a string
+              # representation following the ISO standard. The following one is an integer representation
+              # representing the number of milli seconds since 1 jan 1970.
+              #
+              {"key":"timestamp", "optional":false, "rule":{"type":"array"}},
+
+              # If an exception was logged, this entry contains information about it.
+              #
+              {"key":"exception", "optional":true, "rule":
+                    {"type"  : "properties",
+                     "pairs" : [
+                                # The fully qualified classname of the exception.
+                                #
+                                {"key":"class",   "optional":false, "rule":{"type":"string"}},
+
+                                # The message in the exception (does not have to be the same as the
+                                # message in the log entry).
+                                #
+                                {"key":"message", "optional":false, "rule":{"type":"string"}},
+
+                                # A list of strings, representing the stacktrace of the exception.
+                                #
+                                {"key":"stacktrace", "optional":false, "rule":{"type" :"and", "rules" : [{"type":"array"},{"type":"content","rule":{"type":"string"}}]}}
+                               ]
+                     }
+              }
+             ]
+}
+
+

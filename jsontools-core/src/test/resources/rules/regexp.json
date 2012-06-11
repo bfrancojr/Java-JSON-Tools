@@ -1,0 +1,28 @@
+{
+    "validator" :
+        {
+            "name" :"Regexp test",
+            "type" :"regexp",
+            "pattern" : "a*b*c*"
+        },
+    "good" :
+        [
+           "",
+           "aaaaabbbbbbbbbbbb",
+           "abc",
+           "aaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccccc",
+           "bc",
+           "c",
+           "cccccccccccccccccccccccccccccccccccccccccccc"
+        ],
+    "bad" :
+        [
+            "ddddddddddddd",
+            "abd",
+            123,
+            null,
+            123.12,
+            {}
+        ]
+}
+

@@ -1,0 +1,30 @@
+{
+    "validator" :
+        {
+            "name" :"Let test -  a's or b's",
+            "type" :"let",
+            "*" : "start",
+            "rules" : [{"name":"start", "type":"or", "rules":[{"type":"ref", "*":"a"}, {"type":"ref", "*":"b"}]},
+                       {"name":"a", "type":"regexp", "pattern":"a*"},
+                       {"name":"b", "type":"regexp", "pattern":"b*"}
+                      ]
+        },
+    "good" :
+        [
+            "a",
+            "aaa",
+            "aaaaaaaaaaaaaaaaaaaaaaaa",
+            "b",
+            "bbbbbbbbbbbb",
+            "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        ],
+    "bad" :
+        [
+            null,
+            "abc",
+            "ab",
+            "aaaaaaaaabbbbbbbbbbbbbbbbbbbbbb"
+
+        ]
+}
+

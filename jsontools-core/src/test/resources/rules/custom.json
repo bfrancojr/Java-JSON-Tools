@@ -1,0 +1,16 @@
+{
+    "validator" :
+        {
+            "name" :"Custom test",
+            "type" :"custom",
+            "class" : "com.sdicons.json.validator.MyValidator"
+        },
+    "good" :
+        [
+           1, 2, 3, 4, 5
+        ],
+    "bad" :
+        [           
+        ]
+}
+

@@ -1,0 +1,1024 @@
+\documentclass[a4paper]{article}
+
+%%
+%% Packages in use.
+%%
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage{avant}
+\usepackage{color}
+\usepackage{verbatim}
+% The following is needed in order to make the code compatible
+% with both latex/dvips and pdflatex.
+\ifx\pdftexversion\undefined
+\usepackage[dvips]{graphicx}
+\else
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsRule{*}{mps}{*}{}
+\fi
+
+%%
+%% Configuration of the document properties.
+%%
+\definecolor{Brown}{cmyk}{0,0.81,1,0.60}
+\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+\definecolor{CadetBlue}{cmyk}{0.62,0.57,0.23,0}
+\definecolor{codebackground}{rgb}{0.9,0.9,0.9}
+\lstset{
+    numbers=left, 
+    numberstyle=\tiny, 
+    escapeinside={//*}{\^^M}, 
+    frame=none, 
+    fontadjust=true, 
+    backgroundcolor=\color{codebackground},
+    basicstyle=\ttfamily\small{}, 
+    keywordstyle=\color{OliveGreen}\bfseries,
+    identifierstyle=\color{CadetBlue}, 
+    commentstyle=\color{Brown}\itshape,
+    stringstyle=\ttfamily,
+    showstringspaces=true,
+    language=java}
+\usepackage{fullpage}
+\addtolength{\oddsidemargin}{0.3cm}
+\addtolength{\evensidemargin}{0.3cm}
+% No indentation at start of a paragraph.
+\setlength{\parindent}{0in}
+\renewcommand*\familydefault{\sfdefault}    
+\renewcommand{\baselinestretch}{1.2} 
+
+\newcommand{\ruledef}[3]{
+\medskip
+\textbf{#1}
+
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+   \item Parameters: #2
+   \item Description: #3
+\end{itemize}
+}
+\newcommand{\rulename}[1]{\textbf{``type'' : ``#1''}}
+\newcommand{\jtools}{JSON Tools}
+\newcommand{\java}{Java}
+\newcommand{\param}[1]{\textsl{#1}:}
+
+%% 
+%% Title information
+%%
+\title{\jtools\ Core 1.6}
+\author{Bruno Ranschaert}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%%
+%% SECTION - INTRO
+%%
+\section{Introduction}
+\subsection{Introduction}
+
+JSON (JavaScript Object Notation) is a file format to represent data. It is similar to XML but has different characteristics. It is suited to represent configuration information, implement communication protocols and so on.  XML is more suited to represent annotated documents. 
+JSON parsing is very fast, the parser can be kept lean and mean. It is easy for humans to read and write.  
+It is based on a subset of the JavaScript programming language\footnote{\href{http://www.ecma-international.org/publications/standards/Ecma-262.htm}{Standard ECMA-262 3rd Edition - December 1999.}}.  JSON is a text format that is completely language independent but uses conventions that are familiar to programmers of the C-family of languages\footnote{Including C, C++, "C\#", \java, JavaScript, Perl, Python, and many others.}.  These properties make JSON an ideal data-interchange language. 
+The format is specified on the JSON web site\footnote{The JSON web site: \url{http://www.json.org/}}, for the details please visit this site.
+
+JSON is a very simple format. As a result, the parsing and rendering is fast and easy, you can concentrate on  the content of the file in stead of the format.  
+In XML it is often difficult to fully understand all features (e.g. name spaces, validation, ...).  
+As a result, XML tends to become part of the problem i.s.o. the solution. 
+In JSON everything is well defined, all aspects of the representation are clear, you can concentrate on how you are going to represent your application concepts. The following example comes from the JSON example page  \footnote{JSON Example page: \url{http://www.json.org/example.html}}.
+
+\medskip
+\begin{lstlisting}
+{ "widget" : {
+      "debug" : "on",
+      "text" : {
+         "onMouseUp" : "sun1.opacity = (sun1.opacity / 100) * 90;",
+         "hOffset" : 250,
+         "data" : "Click Here",
+         "alignment" : "center",
+         "style" : "bold",
+         "size" : 36,
+         "name" : "text1",
+         "vOffset" : 100 },
+      "image" : {
+         "hOffset" : 250,
+         "alignment" : "center",
+         "src" : "Images/Sun.png",
+         "name" : "sun1",
+         "vOffset" : 250 },
+      "window" : {
+         "width" : 500,
+         "height" : 500,
+         "title" : "Sample Konfabulator Widget",
+         "name" : "main_window" } } }
+\end{lstlisting}
+\medskip
+
+This project wants to provide the tools to manipulate and use the format in a \java\ application. 
+
+\subsection{Acknowledgements}
+The \jtools\ library is the result of many suggestions, contributions and reviews from the users. Without the feedback the library would not be as versatile and stable as it is today. Thank you for all the feedback that makes the library better.
+
+\subsection{About S.D.I-Consulting}
+
+Visit the web site \url{http://www.sdi-consulting.com} for more information.
+Visit the \jtools\ project summary\footnote{\jtools\ summary: \url{http://sdi-consulting.com/menu/software/frameworks/jsontools.html}} page, the project itself is hosted on the Berlios service\footnote{\jtools\  project page: \url{http://jsontools.berlios.de}}.
+
+\subsection{Dependencies}
+
+The parser uses ANTLR  2.7.7\footnote{ANTLR: \url{http://www.antlr.org/}} , so the ANTLR runtime is needed for this. It might work with other versions, I simply did not test it. I am aware that ANTLR v3 is available, but it is still in beta. We will stick to the stable release. The project is based on the maven2 build system.
+
+The \jtools\ libraries are written using the new language features from JDK 1.5 \footnote{Sun \java\ 5: \url{http://java.sun.com/j2se/1.5}}.  Enumerations and generics are used because these make the code nicer to read.  There are no dependencies to the new libraries. On the other hand, there is no guarantee we will keep it this way in future releases. If you want to use the libraries for an earlier version of the JDK, the retrotranslator tool\footnote{Retrotranslator: \url{http://retrotranslator.sourceforge.net}} might be an option.
+
+\subsection{License}
+
+The library is released under the LGPL\footnote{Gnu LGPL: \url{http://www.gnu.org/licenses/lgpl.html}}. You are free to use it for commercial or non-commercial applications as long as you leave the copyright intact and add a reference to the project. You can find a copy of the license header in appendix \ref{license}. 
+Let me know what you like and what you don't like about the library so that I can improve it.
+
+\subsection{JSON Extensions}
+
+Comments. I added line comments which start with "\#". It is easier for the examples to be able to put comments in the file. The comments are not retained, they are skipped and ignored.
+
+%%
+%% SECTION - CORE TOOLS
+%%
+\section{The Core Tools}
+
+%% PARSING
+\subsection{Parsing - Reading JSON}
+
+The most important tool in the tool set is the parser, it enables you to convert a JSON file or stream into a \java\ model. All JSON objects remember the position in the file (line, column), so if you are doing post processing of the data you can always refer to the position in the original file. 
+Invoking the parser is very simple as you can see in this example:
+
+\medskip
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize{}]
+JSONParser lParser = new JSONParser(JSONTest.class.getResourceAsStream("/config.json"));
+JSONValue lValue = lParser.nextValue();
+\end{lstlisting}
+\medskip
+
+The JSON model is a hierarchy of types, the hierarchy looks like this:
+
+\medskip
+\begin{lstlisting}
+JSONValue
+   JSONComplex
+      JSONObject
+      JSONArray
+   JSONSimple
+      JSONNull
+      JSONBoolean
+      JSONString
+      JSONNumber
+         JSONInteger
+         JSonDecimal
+\end{lstlisting}
+\medskip
+
+%% RENDERING
+\subsection{Rendering - Writing JSON}
+
+The classes in the JSON model can render themselves to a String. You can choose to render to a pretty form, nicely indented and easily readable by humans, or you can render to a compact form, no spaces or indentations are provided. This is suited to use on a communications channel when you are implementing a communication protocol.
+
+In the introduction we already saw a pretty rendering of some widget data. The same structure can be rendered without pretty printing in order to reduce whitespace. This can be an interesting feature when space optimization is very important, e.g. communication protocols.
+
+%% MAPPING
+\subsection{Mapping}
+\label{mapping}
+\subsubsection{When to choose mapping}
+
+Both mapping tool (this section) and serialization tool (section \ref{serialization} on page \pageref{serialization}) can be used to convert \java\ into JSON and vice versa. These tools have different goals. The goals of the mapper are:
+
+\begin{itemize}
+	\item The JSON text should be clean and straightforward. So no meta information can be stored.
+	\item The data contained in the JSON text should not be dependent on the \java\ programming language. You do not need to know that the data was produced in \java\ or that it will be parsed in \java.
+	\item Not all \java\ data structures have to be mapped: recursive structures, differentiation between primitives and reference types are less important. If a trade-off has to be made, it will be in favor of the JSON format.
+\end{itemize}
+
+The JSON from the mapper can be easily interpreted in another language. An example could be JavaScript in the context of an AJAX\footnote{AJAX = Asynchronous JavaScript and XML, see \url{http://en.wikipedia.org/wiki/AJAX} for more information.} communication with the server. The service could be talking some JSON protocol. It is not difficult to map \java\ data to JSON. It can be done like this:
+
+\medskip
+\begin{lstlisting}
+import com.sdicons.json.mapper.*;
+...
+JSONValue lObj = JSONMapper.toJSON(myPojo);
+\end{lstlisting}
+\medskip
+
+Converting back to \java\ is done like this:
+
+\medskip
+\begin{lstlisting}
+import com.sdicons.json.mapper.*;
+...
+MyBean bean = (MyBean) JSONMapper.toJava(lObj, MyBean.class);
+\end{lstlisting}
+\medskip
+
+Note that the mapper needs some help to convert JSON into \java. As we stated in the goals of the mapper, we cannot store meta information in the JSON text. As a result the mapper cannot know how the JSON text should be mapped. Therefore we pass a class to the mapper (line 3) so that the mapper can exploit this information. In fact, there are two kinds of information the mapper can work with (1) classes as in the example and (2) types e.g. \lstinline{List<Integer>}. The rationale for this might be illustrated by the following example. Consider a JSON text 
+
+\medskip
+\begin{lstlisting}
+[ "01/12/2006", "03/12/2007", ... ]
+\end{lstlisting}
+\medskip
+
+This list could be interpreted as a list of Strings, but also as a list of Dates. The mapper has no idea what to do with it. When we pass the type \lstinline{LinkedList<Date>} or the type \lstinline{LinkedList<String>}, the mapper can exploit this type information and do the right thing. Also note that the mapper automatically exploits this information when the outer layer is a bean, and the list is one of the beans properties.
+
+\subsubsection{The mapping process}
+\label{mappingprocess}
+
+The mapper uses a repository of helpers. Each helper is specialized in mapping instances of a certain class or interface. The mappers are organized in the repository in a hierarchical way, ordered according to the class hierarchy. When mapping an object, the mapper will try to find the most specific helper available. The default hierarchy looks like this:
+
+\begin{lstlisting}
+// Calling this method:
+System.out.println(JSONMapper.getRepository().prettyPrint());
+
+// Results in this output:
+java.lang.Object
+   java.lang.String
+   java.lang.Boolean
+   java.lang.Byte
+   java.lang.Short
+   java.lang.Integer
+   java.lang.Long
+   java.lang.Float
+   java.lang.Double
+   java.math.BigInteger
+   java.math.BigDecimal
+   java.lang.Character
+   java.util.Date
+   java.util.Collection
+   java.util.Map
+\end{lstlisting}
+
+The basic \java\ types (byte, int, char, ..., arrays) are handled internally by the mapper, no helpers are used for this. For all reference types, the repository is used to find an appropriate handler. If there is no specific helper available, the mapper will eventually use the root mapper. Currently there are two flavors available of the root mapper that handles \lstinline{java.lang.Object}.
+
+\begin{itemize}
+   \item \lstinline{ObjectMapper} is the default helper for objects that have no specific helper. It tries to access the object as a JavaBean. The object has to have an empty constructor, and the helper will only look at the getters/setters to retreive the contents of the bean. This helper is the default root helper for compatibility reasons with earlier versions of the \jtools. The JavaBean helper can be explicitly activated by calling the method \lstinline{JSONMapper.useJavaBeanAccess()}.
+   \item \lstinline{ObjectMaperDirect} is optional, this helper will access the fields directly, no getters or setters are needed. The fields can even be private. This POJO helper can be activated by calling the method \lstinline{JSONMapper.usePojoAccess();}.
+\end{itemize}
+
+It is also possible to add your own mapper helpers to the repository. As you can see, the default repository is only two levels deep, but it can be much more specialized according to the business needs. There are two different ways to create a helper or to influence the mapping process.
+
+\begin{itemize}
+   \item \lstinline{@JSONMap, @JSONConstruct}. If the \lstinline{ObjectHelperDirect} is activated as described above, then the class that you want to map can simply annotate two methods with these annotations. The \lstinline{@JSONMap} annotation has to be used to mark a method that returns an object array. This method will be called by the mapping process when an instance of the class is mapped from the \java\ model to JSON. These values will be used by the mapper when the instance is mapped from JSON to \java\ by invoking the constructor that is annotated with the \lstinline{@JSONConstruct} annotation.
+   \item Another way to create a helper is to create a new class, derived from \lstinline{SimpleMapperHelper}, and add it to the mapper repository by calling the method \lstinline{JSONMapper.addHelper(myHelper)}.
+\end{itemize}
+
+Here is an example of an annotated class. It is the first solution, in combination with \lstinline{ObjectMapperDirect}. Do not forget to activate the POJO mapper.
+
+\medskip
+\begin{lstlisting}
+public class MyDate
+{
+    // The fields will be mapped as well, independent of the 
+    // constructor values.
+    private Date theDate;
+    private String theTimeZone;
+    
+    // Because of this annotation, the ObjectMapperDirect will call this 
+    // function and serialize the values in the object array. These values 
+    // will be used later on to call the annotated constructor. 
+    @JSONMap   
+    public Object[] getTime()
+    {
+         return new Object[]{theDate.getTime(), theTimeZone};
+    }
+
+    // This constructor will be called with the same values that were 
+    // provided by the other annotated method.
+    @JSONConstruct
+    public MyDate(long aTime, String aTimeZone)
+    {
+        theDate = new Date(aTime);
+        theTimeZone = aTimeZone;
+    }        
+}
+\end{lstlisting}
+
+%% SERIALIZING
+\subsection{Serialization}
+\label{serialization}
+
+Both mapping tool (section \ref{mapping} on page \pageref{mapping})  and serialization tool (this section) can be used to convert \java\ into JSON and vice versa. These tools have different goals. The goals of the serializer are:
+
+\begin{itemize}
+	\item The serialization tool could be an alternative for native serialization\footnote{Java serialization: \url{http://java.sun.com/j2se/1.5.0/docs/guide/serialization/}} (regarding functionality). This does not mean that all kinds of classes are supported out of the box, but it means that the general mechanism should be there and there should be an easy way to extend the mechanism so that we can deal with all classes.
+	\item The serialization tool should preserve the difference between reference types and primitive types.
+	\item Recursive types should be supported without putting the (de)serializer into an infinite loop.
+	\item Instance identity should be preserved. If the same instance is referenced from other instances, the same structure should be reconstructed during de-serialization. There should only be one instance representing the original referenced instance.
+	\item The content of the JSON text can contain meta information which can help de-serialization. We are allowed to add extra information in the JSON text in order to accomplish the other goals.
+\end{itemize}
+
+This tool enables you to render POJO's \footnote{POJO = Plain Old Java Object. See \url{http://en.wikipedia.org/wiki/Plain_Old_Java_Object} for more information.}  to a JSON file. It is similar to the XML serialization in \java\ or the XML Stream library, but it uses the JSON format. The result is a very fast text serialization, you can customize it if you want.  The code is based on the SISE project, it was adjusted to make use of and benefit from the JSON format. Marshaling (converting from \java\ to JSON) as well as un-marshaling is very straightforward:
+
+\medskip
+\begin{lstlisting}
+import com.sdicons.json.serializer.marshall.*;
+...
+myTestObject = ...
+Marshall marshall = new JSONMarshall();
+JSONObject result = marshall.marshall(myTestObject);
+\end{lstlisting}
+\medskip
+
+And the other way around:
+ 
+\medskip
+\begin{lstlisting}
+import com.sdicons.json.serializer.marshall.*;
+...
+JSONObject myJSONObject = ...
+MarshallValue lResult = marshall.unmarshall(myJSONObject); //*\label{marshallvalue}
+... = lResult.getReference()
+\end{lstlisting}
+\medskip
+
+You might wonder what the \lstinline{MarshallValue} (on line \ref{marshallvalue}) is all about, why is un-marshaling giving an extra object back? The answer is that we went to great lengths to provide marshaling or un-marshaling for both \java\ reference types as \java\ basic types. A basic type needs to be fetched using specific methods (there is no other way). In order to provide these specific methods we need an extra class.
+
+\subsubsection{Primitive Types}
+
+Primitive types are represented like this.
+
+\medskip
+\begin{lstlisting}
+{ ">" : "P",
+  "=" : "1",
+  "t" : "int" }
+\end{lstlisting}
+\medskip
+
+The ``>''  attribute with value ``P''  indicates a primitive type. The ``=''  attribute contains the representation of the value and the ``t'' attribute contains the original \java\ type.
+
+\subsubsection{Reference Types}
+
+An array is defined recursively like this. We can see the ``>'' attribute this time with the ``A''  value, indicating that the object represents an array. The ``C'' attribute contains the type representation for arrays as it is defined in \java\. The ``=''  attribute contains a list of the values.
+
+\medskip
+\begin{lstlisting}
+{ ">" : "A",
+  "c" : "I",
+  "=" :
+     [
+         {
+            ">" : "P",
+            "=" : "0",
+            "t" : "int" },
+         {
+            ">" : "P",
+            "=" : "1",
+            "t" : "int" },
+         {
+            ">" : "P",
+            "=" : "2",
+            "t" : "int" },
+         {
+            ">" : "P",
+            "=" : "3",
+            "t" : "int" },
+         {
+            ">" : "P",
+            "=" : "4",
+            "t" : "int" },
+         {
+            ">" : "P",
+            "=" : "5",
+            "t" : "int" } ] }
+\end{lstlisting}
+\medskip
+
+An object is represented like this.
+
+\medskip
+\begin{lstlisting}
+{
+   ">" : "O",
+   "c" : "com.sdicons.json.serializer.MyBean",
+   "&" : "id0",
+   "=" : {
+      "int2" :
+        { ">" : "null" },
+      "ptr" :
+        { ">" : "R",
+          "*" : "id0" },
+      "name" :
+        { ">" : "O",
+          "c" : "java.lang.String",
+          "&" : "id2",
+          "=" : "This is a test..." },
+      "int1" :
+        { ">" : "null" },
+      "id" :
+        { ">" : "O",
+          "c" : "java.lang.Integer",      
+          "&" : "id1",
+          "=" : "1003" } } }
+\end{lstlisting}
+\medskip
+
+The ``>'' marker contains ``O'' for object this time. The ``C'' attribute contains a fully qualified class name. The ``\&'' contains a unique id, it can be used to refer to the object so that we are able to represent recursive data structures. The ``=''  attribute contains a JSON object having a property for each JavaBean property.  The property value is recursively a representation of a \java\ object. Note that there is a special notation to represent \java\ \lstinline{null} values.
+
+\medskip
+\begin{lstlisting}
+{ ">" : "null" }
+\end{lstlisting}
+\medskip
+
+Also note that you can refer to other objects with the reference object which looks like this:
+
+\medskip
+\begin{lstlisting}
+{ ">" : "R",
+  "*" : "id0" }
+\end{lstlisting}
+\medskip
+
+\subsubsection{The serialization process}
+\label{serializationprocess}
+
+The serialization process uses the same mechanism as the mapping process (section \ref{mappingprocess} on page \pageref{mappingprocess}), but the repository contains serialization helpers in stead of mapping helpers. There are also two different flavors of root serializers available:
+
+\begin{itemize}
+   \item \lstinline{ObjectHelper} Serializes an instance as a JavaBean. This is the default for compatibility reasons. You can explicitly activate it by calling \lstinline{((JsonMarshall) marshall).useJavaBeanAccess()}.
+   \item \lstinline{ObjectHelperDirect} Serializes an instance as a POJO. You an activate this by calling the method \lstinline{((JsonMarshall) marshall).usePojoAccess()}.
+\end{itemize}
+
+You can customize the serializer for your own business model in two ways.
+
+\begin{itemize}
+   \item \lstinline{@JSONSerialize, @JSONConstruct} in combination with the \lstinline{ObjectHelperDirect}.
+   \item Deriving your own helper class from \lstinline{MarshallHelper} and adding it with the method call  \lstinline{((JsonMarshall) marshall).addHelper(myHelper)}.
+\end{itemize}
+
+Here is an example of an annotated class.
+
+\begin{lstlisting}
+public class MyDate
+{
+    // These private fields will be serialized in addition to the
+    // constructor values.
+    private Date theDate;
+    private String theTimeZone;
+
+    // This method will be called during serialization to obtain the
+    // values that can later be used to call the constructor.
+    @JSONSerialize
+    public Object[] getTime()
+    {
+        return new Object[]{theDate.getTime(), theTimeZone};
+    }
+    
+    // This constructor will be called with the values that were provided
+    // by the other annotated method.
+    @JSONConstruct
+    public MyDate(long aTime, String aTimeZone)
+    {
+        theDate = new Date(aTime);
+        theTimeZone = aTimeZone;
+    }
+}
+\end{lstlisting}
+
+The result of the serialization looks like the following listing. As you can see, there are two extra artificial fields \lstinline{cons-0} on line \ref{cons0} and \lstinline{cons-1} on line \ref{cons1} which are generted automatically by the serializer, these properties contain the values which were provided by the method which was annotated with \lstinline{@JSONSerialize}. These same properties will be used for calling the \lstinline{@JSONConstruct} annotated constructor.
+
+\begin{lstlisting}
+{ ">" : "O",
+  "&" : "id0",
+  "c" : "MyDate",
+  "=" : {
+     "cons-0" : {//*\label{cons0}     
+        ">" : "O",
+        "&" : "id1",
+        "c" : "java.lang.Long",
+        "=" : "1212717107857" },
+     "cons-1" : {//*\label{cons1}            
+        ">" : "O",
+        "&" : "id2",
+        "c" : "java.lang.String",
+        "=" : "CEST" },
+     "theDate" : {
+        ">" : "O",
+        "&" : "id3",
+        "c" : "java.util.Date",
+        "=" : "2008-06-06 03:51:47,857 CEST" },
+     "theTimeZone" : {
+        ">" : "R",
+        "*" : "id2" } } }
+\end{lstlisting}
+
+ 
+%% VALIDATION
+\subsection{Validation}
+
+This tool enables you to validate your JSON files. You can specify which content you expect, the validator can check these constraints for you. The system is straightforward to use and extend. You can add your own rules if you have specific needs. The validation definition is in JSON - as you would expect. Built-in rules:
+
+\medskip
+\begin{lstlisting}
+{ "name" : "Some rule name",
+  "type" : "<built-in-type>" }
+\end{lstlisting}
+\medskip
+
+A validation document consists of a validation rule. This rule will be applied to the \lstinline{JSONValue} that has to be validated. The validation rules can be nested, so it is possible to create complex rules out of simpler ones. The ``type'' attribute is obligatory.  The  ``name'' is optional, it will be used during error reporting and for re-use.  The predefined rules are listed below. The name can come in handy while debugging. The name of the failing validation will be available in the exception. If you give each rule its own name or number, you can quickly find out on which predicate the validation fails. Here is an example of how you can create a validator.
+
+\medskip
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize{}]
+// First we create a parser to read the validator specification which is 
+// defined using the (what did you think) JSON format.
+// The validator definition is located in the "my-validator.json" resource in the
+// class path.
+JSONParser lParser = 
+   new JSONParser(
+      MyClass.class.getResourceAsStream("my-validator.json"));
+
+// We parse the validator spec and convert it into a Java representation.
+JSONObject lValidatorObject = (JSONObject) lParser.nextValue();
+
+// Finally we can convert our validator using the Java model.
+Validator lValidator = new JSONValidator(lValidatorObject);
+
+And now that you have the validator, you can start validating your data.
+
+// First we create a parser to read the data. 
+JSONParser lParser = new JSONParser(MyClass.class.getResourceAsStream("data.json"));
+
+// We parse the datafile and convert it into a Java representation.
+JSONValue lMyData = lParser.nextValue();
+
+// Now we can use the validator to check on our data. We can test if the data has the 
+// correct format or not. 
+lValidator.validate(lMyData);
+\end{lstlisting}
+\medskip
+
+\subsubsection{Basic Rules}
+
+These rules are the basic rules in boolean logic. 
+
+% RULE TRUE
+\ruledef{\rulename{true}}{-}{This rule always succeeds.}
+
+A validator that will succeed on all JSON data structures.	
+\begin{lstlisting}
+{ "name" :"This validator validates *everything*",
+  "type" :"true" }
+\end{lstlisting}
+
+% RULE FALSE
+\ruledef{\rulename{false}}{-}{This rule always fails.}
+
+A validator that rejects all data structures.
+\begin{lstlisting}
+{ "name" :"This validator rejects all",
+  "type" :"false" }
+\end{lstlisting}
+
+% RULE AND
+\label{and}
+\ruledef{\rulename{and}}{\begin{itemize} \item \param{rules} Array of nested rules. \end{itemize}}{All nested rules have to hold for the and rule to succeed.}
+
+A validator that succeeds if the object under scrutiny is both a list and has content consisting of integers.
+\begin{lstlisting}
+{ "name" :"List of integers",
+  "type" :"and",
+  "rules" : [ {"type":"array"}, {"type":"content","rule":{"type":"int"} } ] }
+\end{lstlisting}
+
+% RULE OR
+\ruledef{\rulename{or}}{\begin{itemize} \item \param{rules} Array of nested rules.\end{itemize}}{One of the nested rules has to succeed for this rule to succeed.}
+
+A validator that validates booleans or integers.
+\begin{lstlisting}
+{ "name" :"Null or int",
+  "type" :"or",
+  "rules" : [ {"type":"int"}, {"type":"bool"} ] }
+\end{lstlisting}
+
+% RULE NOT
+\ruledef{\rulename{not}}{\begin{itemize} \item \param{rule} A single nested rule. \end{itemize}}{The rule succeeds if the nested rule fails and vice versa.}
+
+\subsubsection{Type Rules }
+
+These rules are predefined rules which allows you to specify type restrictions on the JSON data elements. The meaning of these predicates is obvious, they will not be discussed. See the examples for more information. Following type clauses can be used: 
+
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+   \item  \rulename{complex}
+   \item  \rulename{array}
+   \item  \rulename{object}
+   \item  \rulename{simple}
+   \item  \rulename{null}
+   \item  \rulename{bool}
+   \item  \rulename{string}
+   \item  \rulename{number}
+   \item  \rulename{int}
+   \item  \rulename{decimal}
+\end{itemize}
+
+\subsubsection{ Attribute Rules }
+
+These rules check for attributes of certain types.
+
+% LENGTH RULE
+\ruledef{\rulename{length}}{
+\begin{itemize}
+   \item \param{min} (optional) The minimal length of the array.
+   \item \param{max} (optional) The maximal length of the array.
+\end{itemize}} {
+Applicable to complex objects and string objects. The rule will fail if the object under investigation has another type. For array objects the number of elements is counted, for objects the number of properties and for strings, the length of its value in \java\ (not the JSON representation; "$\backslash$n" in the file counts as a single character).}
+
+A validator that only wants arrays of length 5.
+\begin{lstlisting}
+{ "name"  :"Array of length 5",
+  "type"  :"and",
+  "rules" : [{"type":"array"}, {"type":"length","min":5,"max":5}] }
+\end{lstlisting}
+
+% RANGE RULE
+\ruledef{\rulename{range}}{\begin{itemize} \item \param{min} (optional) The minimal value.\item \param{max} (optional) The maximal value.\end{itemize}}{Applicable to \lstinline{JSONNumbers}, i.e. \lstinline{JSONInteger} and \lstinline{JSONDecimal}.}
+
+Allow numbers between 50 and 100.
+\begin{lstlisting}
+{ "name" :"Range validator",
+  "type" :"range",
+  "min" : 50,
+  "max" : 100 }
+\end{lstlisting}
+
+% ENUM RULE
+\ruledef{\rulename{enum}}{\begin{itemize} \item \param{values} An array of JSON values. \end{itemize}}{The value has to occur in the provided list. The list can contain simple types as well as complex nested types.}
+
+An enum validator.
+\begin{lstlisting}
+{ "name" :"Enum validator",
+  "type" :"enum",
+  "values" : [13, 17, "JSON", 123.12, [1, 2, 3], {"key":"value"}] }
+\end{lstlisting}
+
+% REGEXP RULE
+\ruledef{\rulename{regexp}}{\begin{itemize} \item \param{pattern} A regular expression pattern.\end{itemize}}{For strings, requires a predefined format according to the regular expression.}
+
+A validator that validates strings containing a sequence of a's , b's and c's.
+
+\begin{lstlisting}
+{ "name" :"A-B-C validator",
+  "type" :"regexp",
+  "pattern" : "a*b*c*" }
+\end{lstlisting}
+
+% CONTENT RULE
+\ruledef{\rulename{content}}{\begin{itemize} \item \param{rule} The rule that specifies how the content of a complex structure -  an array or the property values of an object -  should behave. \end{itemize}}{ Note that in contrast with the ``properties'' rule (for objects), you can specify in a single rule what all property values of an object should look like.}
+
+See \rulename{and} on page \pageref{and}. 
+
+% PROPERTIES RULE
+\ruledef{\rulename{properties}}{\begin{itemize} \item \param{pairs} A list of ``key/value'' pair descriptions. Note that in contrast with the content rule above you can specify a rule per attribute. Each description contains three properties: \begin{itemize} \item \param{key} The key string. \item \param{optional} A boolean indicating whether this property is optional or not. \item \param{rule} A validation rule that should be applied to the properties value. \end{itemize}  \end{itemize}}{This predicate is only applicable (and only has meaning) on object data structures. It will fail on any other type.}
+
+It will validate objects looking like this:
+ 
+\begin{lstlisting}
+Example data structure that will be validated:
+{{"name":"Bruno Ranschaert", "country":"Belgium", "salary":13.0 }}
+
+The validator looks like this:
+{ "name" :"Contact spec.",
+  "type" :"properties",
+  "pairs" : [{"key":"name", "optional":false, "rule":{"type":"string"}},
+              {"key":"country", "optional":false, "rule":{"type":"string"}},
+              {"key":"salary", "optional":true, "rule":{"type":"decimal" } } ] }
+\end{lstlisting}
+
+\subsubsection{Structural Rules }
+
+% REF RULE
+\ruledef{\rulename{ref}}{\begin{itemize} \item \param{*} The name of the rule to invoke. \end{itemize}}{ This rule lets you specify recursive rules. Be careful not to create infinite validations which is quite possible using this rule. The containing rule will be fetched just before validation, there will be no error message during construction when the containing rule is not found. The rule will fail in this case. If there are several rules with the same name, only the last one with that name is remembered and the last one will be used.}
+
+A validator that validates nested lists of integers. A ref is needed to enable recursion in the validator.
+
+\begin{lstlisting}
+{ "name" :"Nested list of integers",
+  "type" :"and",
+  "rules" : [ 
+     {"type":"array"},
+     {"type":"content",
+      "rule": {
+         "type" : "or",
+         "rules": [
+            {"type":"int"}, 
+            {"type":"ref", "*" : "Nested list of integers" } ] } } ] }
+\end{lstlisting}
+
+% LET RULE
+\ruledef{\rulename{let}}{\begin{itemize} \item \param{rules} A list of rules.\item * : The name of the rule that should be used.\end{itemize}}{Lets you specify a number of named rules in advance. It is a convenience rule that lets you specify a list of global shared validation rules in advance before using these later on. It becomes possible to first define a number of recurring types and then give the starting point. It is a utility rule that lets you tackle more complex validations. Note that it  makes no sense to define anonymous rules inside the list, it is impossible to refer to these later on.}
+
+\begin{lstlisting}
+{ "name" :"Let test -  a's or b's",
+  "type" :"let",
+  "*"    : "start",
+  "rules" : 
+     [{"name":"start", "type":"or", "rules":[{"type":"ref", "*":"a"}, 
+                                             {"type":"ref", "*":"b"}]},
+      {"name":"a", "type":"regexp", "pattern":"a*"},
+      {"name":"b", "type":"regexp", "pattern":"b*" } ] }
+\end{lstlisting}
+
+The validator class looks like this:
+
+\begin{lstlisting}
+public class MyValidator
+extends CustomValidator
+{
+    public MyValidator(
+       String aName, JSONObject aRule,
+       HashMap<String, Validator> aRuleset)
+    {
+        super(aName, aRule, aRuleset);
+    }
+
+    public void validate(JSONValue aValue) 
+    throws ValidationException
+    {
+        // Do whatever you need to do on aValue ...
+        // If validation is ok, simply return.
+        // If validation fails, you can use:
+        // fail(JSONValue aValue) or 
+        //    fail(String aReason, JSONValue aValue)
+        // to throw the Validation exception for you.
+    }
+}
+\end{lstlisting}
+
+% CUSTOM RULE
+\ruledef{\rulename{custom}}{\begin{itemize} \item \param{class} The fully qualified class name of the validator.\end{itemize}}{An instance of this validator will be created and will be given a hash map of validations.  A custom validator should be derived from \lstinline{CustomValidator}. }
+
+\begin{lstlisting}
+{ "name" :"Custom test",
+  "type" :"custom",
+  "class" : "com.sdicons.json.validator.MyValidator" }
+\end{lstlisting}
+
+% SWITCH RULE
+\ruledef{\rulename{switch}}{\begin{itemize} \item \param{key} The key name of the object that will act as the discriminator. \item \param{case}  A list of objects containing the parameters ``values'' and ``rule''. The first one is a list of values the second one a validator rule. \end{itemize}}{ The switch validator is a convenience one. It is a subset of the or validator, but the problem with the or validator is that it does a bad job for error reporting when things go wrong. The reason is that all rules fail and it is not always clear why, because the reason a rule fails might be some levels deeper. The switch validator selects a validator based on the value of  a property encountered in the value being validated. The error produced will be the one of the selected validator.  The first applicable validator is used, the following ones are ignored.
+Example: The top level rule in the validator for validators contains a switch that could have been described by an or, but the switch gives better error messages.}
+
+\appendix
+
+\newpage
+\section{ License Header }
+\label{license}
+
+\begin{verbatim}
+JSONTOOLS - Java JSON Tools
+Copyright (C) 2006-2008 S.D.I.-Consulting BVBA
+http://www.sdi-consulting.com
+mailto://nospam@sdi-consulting.com
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA 
+\end{verbatim}
+
+\newpage
+\section{ Validator for Validators }
+
+ This example validator is able to validate validators. The example is a bit contrived because the validators really don't need validation because it is built-in in the construction. It is interesting because it can serve as a definition of how to construct a validator.
+ 
+\medskip
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize{}]
+{
+   "name":"Validator validator",
+   "type":"let",
+   "*":"rule",
+   "rules":
+   [
+      ########## START ##########
+      {
+         "name":"rule",
+         "type":"switch",
+         "key":"type",
+         "case":
+         [
+            {"values":["true", "false", "null"], "rule":{"type":"ref","*":"atom-rule"}},
+            {"values":["int", "complex", "array", "object", "simple",
+                       "null", "bool", "string", "number", "decimal"],
+                       "rule":{"type":"ref","*":"type-rule"}},
+            {"values":["not", "content"], "rule":{"type":"ref","*":"rules-rule"}},
+            {"values":["and", "or"], "rule":{"type":"ref","*":"ruleset-rule"}},
+            {"values":["length", "range"], "rule":{"type":"ref","*":"minmax-rule"}},
+            {"values":["ref"], "rule":{"type":"ref","*":"ref-rule"}},
+            {"values":["custom"], "rule":{"type":"ref","*":"custom-rule"}},
+            {"values":["enum"], "rule":{"type":"ref","*":"enum-rule"}},
+            {"values":["let"], "rule":{"type":"ref","*":"let-rule"}},
+            {"values":["regexp"], "rule":{"type":"ref","*":"regexp-rule"}},
+            {"values":["properties"], "rule":{"type":"ref","*":"properties-rule"}},
+            {"values":["switch"], "rule": {"type":"ref","*":"switch-rule"}}
+         ]
+      },
+      ########## RULESET ##########
+      {
+         "name":"ruleset",
+         "type":"and",
+         "rules":[{"type":"array"},{"type":"content","rule":{"type":"ref","*":"rule"}}]
+      },
+      ########## PAIRS ##########
+      {
+         "name":"pairs",
+         "type":"and",
+         "rules":[{"type":"array"},{"type":"content","rule":{"type":"ref","*":"pair"}}]
+      },
+      ########## PAIR ##########
+      {
+         "name":"pair",
+         "type":"properties",
+         "pairs" :
+          [{"key":"key",      "optional":false, "rule":{"type":"string"}},
+           {"key":"optional", "optional":false, "rule":{"type":"bool"}},
+           {"key":"rule",     "optional":false, "rule":{"type":"ref","*":"rule"}}
+          ]
+      },
+      ########## CASES ##########
+      {
+         "name":"cases",
+         "type":"and",
+         "rules":[{"type":"array"},{"type":"content","rule":{"type":"ref","*":"case"}}]
+      },
+      ########## CASE ##########
+      {
+         "name":"case",
+         "type":"properties",
+         "pairs" :
+          [{"key":"values",   "optional":false, "rule":{"type":"array"}},
+           {"key":"rule",     "optional":false, "rule":{"type":"ref","*":"rule"}}
+          ]
+      },
+      ########## ATOM ##########
+      {
+         "name":"atom-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":
+                          {"type":"enum","values":["true", "false", "null"]}}
+          ]
+      },
+      ########## RULESET-RULE ##########
+      {
+         "name":"ruleset-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name",  "optional":true,  "rule":{"type":"string"}},
+           {"key":"type",  "optional":false, "rule":{"type":"enum","values":["and", "or"]}},
+           {"key":"rules", "optional":false, "rule":{"type":"ref","*":"ruleset"}}
+          ]
+      },
+      ########## RULES-RULE ##########
+      {
+         "name":"rules-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true,  "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["not", "content"]}},
+           {"key":"rule", "optional":false, "rule":{"type":"ref","*":"rule"}}
+          ]
+      },
+      ########## TYPE ##########
+      {
+         "name":"type-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum",
+                    "values":["int", "complex", "array", "object", 
+                    "simple", "null", "bool", "string", "number", 
+                    "decimal"]}}
+          ]
+      },
+      ########## MINMAX ##########
+      {
+         "name":"minmax-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["length", "range"]}},
+           {"key":"min", "optional":true, "rule":{"type":"number"}},
+           {"key":"max", "optional":true, "rule":{"type":"number"}}
+          ]
+      },
+      ########## REF ##########
+      {
+         "name":"ref-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["ref"]}},
+           {"key":"*",    "optional":false, "rule":{"type":"string"}}
+          ]
+      },
+      ########## CUSTOM ##########
+      {
+         "name":"custom-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["custom"]}},
+           {"key":"class", "optional":true, "rule":{"type":"string"}}
+          ]
+      },
+      ########## ENUM ##########
+      {
+         "name":"enum-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["enum"]}},
+           {"key":"values", "optional":true, "rule":{"type":"array"}}
+          ]
+      },
+      ########## LET ##########
+      {
+         "name":"let-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name",  "optional":true,  "rule":{"type":"string"}},
+           {"key":"type",  "optional":false, "rule":{"type":"enum","values":["let"]}},
+           {"key":"rules", "optional":false, "rule":{"type":"ref","*":"ruleset"}},
+           {"key":"*",     "optional":false, "rule":{"type":"string"}}
+          ]
+      },
+      ########## REGEXP ##########
+      {
+         "name":"regexp-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name", "optional":true, "rule":{"type":"string"}},
+           {"key":"type", "optional":false, "rule":{"type":"enum","values":["regexp"]}},
+           {"key":"pattern", "optional":false, "rule":{"type":"string"}}
+          ]
+      },
+      ########## PROPERTIES ##########
+      {
+         "name":"properties-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name",  "optional":true, "rule":{"type":"string"}},
+           {"key":"type",  "optional":false, "rule":{"type":"enum","values":["properties"]}},
+           {"key":"pairs", "optional":false, "rule":{"type":"ref","*":"pairs"}}
+          ]
+      },
+      ########## SWITCH ##########
+      {
+         "name":"switch-rule",
+         "type":"properties",
+         "pairs" :
+          [{"key":"name",  "optional":true, "rule":{"type":"string"}},
+           {"key":"type",  "optional":false, "rule":{"type":"enum","values":["switch"]}},
+           {"key":"key",   "optional":false, "rule":{"type":"string"}},
+           {"key":"case",  "optional":false, "rule":{"type":"ref","*":"cases"}}
+          ]
+      }
+   ]
+}
+\end{lstlisting}
+
+\newpage
+\section{Changes since 1.5}
+\begin{verbatim}
+Changes to the mapper:
+  * Added ObjectMapperDirect, a helper that can map plain POJO's. 
+    In previous version only a helper for JavaBean properties was provided.
+  * Added @JSONMap, @JSONConstruct annotations that let you quickly create 
+    mapper helpers for POJO's that do not have an empty constructor.
+  * Added a method to the mapper that lets you add mappers quickly.
+  * Added an Enum mapper.
+
+Changes to the serialzer (Marshall) same system as for the mapper was added:
+  * Added ObjectHelperDirect, a helper to serialize POJO's. 
+  * Added @JSONSerialize and @JSONConstruct.
+  * Added method to the marshall that lets you add helpers.
+
+Miscelaneous:
+  * Update to newer version of ANTLR (no not the version 3 which is still in beta).
+  * Code review, small code improvements.
+  * Converted documentation from lout to latex. Lout is a fine system, but latex is
+    more mainstream so more tools, packages and help are available.
+  * Documentation update.
+\end{verbatim}
+ 
+\end{document}

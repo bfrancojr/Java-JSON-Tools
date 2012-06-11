@@ -1,0 +1,24 @@
+{
+    "validator" :
+        {
+            "name" :"List of integers",
+            "type" :"and",
+            "rules" : [{"type":"array"},{"type":"content","rule":{"type":"int"}}]
+        },
+    "good" :
+        [
+            [ 0, 1, 2, 3, 4, 5 ],
+            [123456, 456987, 12369854123, 11111111111],
+            []
+        ],
+    "bad" :
+        [
+            { "prop" : "value"},                        # Not an array.
+            ["contains", "strings", "this", "list"],    # Array of Strings.
+            123,                                        # Not an array.
+            null,                                       # Not an array.
+            [null, null, "123"],
+            [[1]]
+        ]
+}
+

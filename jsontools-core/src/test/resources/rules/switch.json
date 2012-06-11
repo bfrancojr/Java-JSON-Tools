@@ -1,0 +1,29 @@
+{
+    "validator" :
+        {
+            "name" :"Switch test",
+            "type" :"switch",
+            "key":"discriminator",
+            "case" : [{"values":["a", "b", "c", 1, 2, 3], "rule":{"type":"true"}}]
+        },
+    "good" :
+        [
+            {"discriminator":"a"},
+            {"discriminator":"b"},
+            {"discriminator":"c"},
+            {"discriminator":1},
+            {"discriminator":2},
+            {"discriminator":3}
+        ],
+    "bad" :
+        [
+            {"discriminator":"d"},
+            {"discriminator":"e"},
+            {"discriminator":"f"},
+            1,
+            null,
+            [],
+            {}
+        ]
+}
+

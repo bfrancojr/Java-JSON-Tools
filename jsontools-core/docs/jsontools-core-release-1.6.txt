@@ -1,0 +1,17 @@
+JSONTools Core 1.6
+
+Changes to the mapper:
+  * Added ObjectMapperDirect, a helper that can map plain POJO's. In previous version only a helper for JavaBean properties was provided.
+  * Added @JSONMap, @JSONConstruct annotations that let you quickly create mapper helpers for POJO's that do not have an empty constructor.
+  * Added a method to the mapper that lets you add helpers quickly.
+
+Changes to the serialzier (Marshall) same system as for the mapper was added:
+  * Added ObjectHelperDirect, a helper to serialize POJO's. 
+  * Added @JSONSerialize and @JSONConstruct.
+  * Added method to the marshall that lets you add helpers.
+
+Miscelaneous:
+  * Update to newer version of ANTLR (no not the version 3 which is still in beta).
+  * Code review, small code improvements.
+  * Converted documentation from lout to latex. 
+  * Documentation update.
